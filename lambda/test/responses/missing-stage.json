@@ -1,0 +1,33 @@
+{
+    "pipelineName": "PipelineTest",
+    "pipelineVersion": 1,
+    "stageStates": [
+        {
+            "stageName": "Source",
+            "inboundTransitionState": {
+                "enabled": true
+            },
+            "actionStates": [
+                {
+                    "actionName": "Source",
+                    "currentRevision": {
+                        "revisionId": "REVISION_ID"
+                    },
+                    "latestExecution": {
+                        "status": "Succeeded",
+                        "summary": "Amazon S3 version id: VERSION_ID",
+                        "lastStatusChange": 1566463623.903,
+                        "externalExecutionId": "EXTERNAL_EXECUTION_ID"
+                    },
+                    "entityUrl": "https://console.aws.amazon.com/s3/home?#"
+                }
+            ],
+            "latestExecution": {
+                "pipelineExecutionId": "PIPELINE_EXECUTION_ID",
+                "status": "Succeeded"
+            }
+        }
+    ],
+    "created": 1566373619.963,
+    "updated": 1566392450.286
+}

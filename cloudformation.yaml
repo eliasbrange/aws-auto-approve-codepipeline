@@ -1,0 +1,214 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CodePipeline and accompanying buckets and SNS topic
+
+Resources:
+  PipelineArtifactBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      VersioningConfiguration:
+        Status: Enabled
+
+  PipelineSourceBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      VersioningConfiguration:
+         Status: Enabled
+
+  PipelineTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: !Sub ${AWS::StackName}Topic
+      TopicName: !Sub ${AWS::StackName}Topic
+
+  PipelineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: PipelineRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - codepipeline.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+
+  PipelineRolePolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: PipelineRolePolicy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - codepipeline:*
+              - cloudformation:*
+              - iam:PassRole
+            Resource:
+              - "*"
+          - Effect: Allow
+            Action:
+              - sns:Publish
+            Resource:
+              - !Ref PipelineTopic
+          - Effect: Allow
+            Action:
+              - s3:*
+            Resource:
+              - !Sub "arn:aws:s3:::${PipelineArtifactBucket}"
+              - !Sub "arn:aws:s3:::${PipelineArtifactBucket}/*"
+              - !Sub "arn:aws:s3:::${PipelineSourceBucket}"
+              - !Sub "arn:aws:s3:::${PipelineSourceBucket}/*"
+      Roles:
+        - !Ref PipelineRole
+
+  CloudFormationDeployRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: CloudFormationDeployRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - cloudformation.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+
+  CloudFormationDeployRolePolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: CloudFormationDeployRolePolicy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:CreateBucket
+              - s3:DeleteBucket
+            Resource: "*"
+      Roles:
+        - !Ref CloudFormationDeployRole
+
+  Pipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      RoleArn: !GetAtt PipelineRole.Arn
+      Name: !Ref AWS::StackName
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: Source
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Version: 1
+                Provider: S3
+              Configuration:
+                PollForSourceChanges: false
+                S3Bucket: !Ref PipelineSourceBucket
+                S3ObjectKey: templates.zip
+              RunOrder: 1
+              OutputArtifacts:
+                - Name: SourceArtifact
+        - Name: Deploy
+          Actions:
+            # Create change set in stack1
+            - Name: CreateChangeSetStack1
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: 1
+                Provider: CloudFormation
+              Configuration:
+                ChangeSetName: pipeline-test-stack-1-changeset
+                ActionMode: CHANGE_SET_REPLACE
+                StackName: pipeline-test-stack-1
+                TemplatePath: SourceArtifact::stack1.yaml
+                RoleArn: !GetAtt CloudFormationDeployRole.Arn
+              InputArtifacts:
+                - Name: SourceArtifact
+              RunOrder: 1
+            # Wait for approval for stack1
+            - Name: ApprovalStack1
+              ActionTypeId:
+                Category: Approval
+                Owner: AWS
+                Version: 1
+                Provider: Manual
+              Configuration:
+                CustomData: ActionToCheck=CreateChangeSetStack1
+                NotificationArn: !Ref PipelineTopic
+              RunOrder: 2
+            # Execute change set in stack1
+            - Name: ExecuteChangeSetStack1
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: 1
+                Provider: CloudFormation
+              Configuration:
+                ChangeSetName: pipeline-test-stack-1-changeset
+                ActionMode: CHANGE_SET_EXECUTE
+                StackName: pipeline-test-stack-1
+                RoleArn: !GetAtt CloudFormationDeployRole.Arn
+              InputArtifacts:
+                - Name: SourceArtifact
+              RunOrder: 3
+
+            # Create change set in stack2
+            - Name: CreateChangeSetStack2
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: 1
+                Provider: CloudFormation
+              Configuration:
+                ChangeSetName: pipeline-test-stack-2-changeset
+                ActionMode: CHANGE_SET_REPLACE
+                StackName: pipeline-test-stack-2
+                TemplatePath: SourceArtifact::stack2.yaml
+                RoleArn: !GetAtt CloudFormationDeployRole.Arn
+              InputArtifacts:
+                - Name: SourceArtifact
+              RunOrder: 4
+            # Wait for approval for stack2
+            - Name: ApprovalStack2
+              ActionTypeId:
+                Category: Approval
+                Owner: AWS
+                Version: 1
+                Provider: Manual
+              Configuration:
+                CustomData: ActionToCheck=CreateChangeSetStack2
+                NotificationArn: !Ref PipelineTopic
+              RunOrder: 5
+            # Execute change set in stack2
+            - Name: ExecuteChangeSetStack2
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: 1
+                Provider: CloudFormation
+              Configuration:
+                ChangeSetName: pipeline-test-stack-2-changeset
+                ActionMode: CHANGE_SET_EXECUTE
+                StackName: pipeline-test-stack-2
+                RoleArn: !GetAtt CloudFormationDeployRole.Arn
+              InputArtifacts:
+                - Name: SourceArtifact
+              RunOrder: 6
+      ArtifactStore:
+        Type: S3
+        Location: !Ref PipelineArtifactBucket
+
+Outputs:
+  PipelineTopic:
+    Value: !Ref PipelineTopic
+  PipelineSourceBucket:
+    Value: !Ref PipelineSourceBucket

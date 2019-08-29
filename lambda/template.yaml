@@ -1,0 +1,31 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Pipeline Approval Lambda
+
+Parameters:
+  PipelineTopicARN:
+    Description: Pipeline Topic ARN to subscribe to
+    Type: String
+
+Resources:
+  PipelineApprovalLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: handler.handler
+      Runtime: python3.7
+      Timeout: 15
+      Events:
+        PipelineTrigger:
+          Type: SNS
+          Properties:
+            Topic: !Ref PipelineTopicARN
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - codepipeline:GetPipelineState
+                - codepipeline:PutApprovalResult
+              Resource: '*'
+

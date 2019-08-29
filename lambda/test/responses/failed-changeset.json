@@ -1,0 +1,69 @@
+{
+    "pipelineName": "PipelineTest",
+    "pipelineVersion": 1,
+    "stageStates": [
+        {
+            "stageName": "Source",
+            "inboundTransitionState": {
+                "enabled": true
+            },
+            "actionStates": [
+                {
+                    "actionName": "Source",
+                    "currentRevision": {
+                        "revisionId": "REVISION_ID"
+                    },
+                    "latestExecution": {
+                        "status": "Succeeded",
+                        "summary": "Amazon S3 version id: VERSION_ID",
+                        "lastStatusChange": 1566463623.903,
+                        "externalExecutionId": "EXTERNAL_EXECUTION_ID"
+                    },
+                    "entityUrl": "https://console.aws.amazon.com/s3/home?#"
+                }
+            ],
+            "latestExecution": {
+                "pipelineExecutionId": "PIPELINE_EXECUTION_ID",
+                "status": "Succeeded"
+            }
+        },
+        {
+            "stageName": "Deploy",
+            "inboundTransitionState": {
+                "enabled": true,
+                "lastChangedBy": "arn:aws:sts::000000000000:/role",
+                "lastChangedAt": 1566377719.043
+            },
+            "actionStates": [
+                {
+                    "actionName": "CreateChangeSet",
+                    "latestExecution": {
+                        "status": "Failed",
+                        "summary": "Change set CHANGESET_NAME failed.",
+                        "lastStatusChange": 1566463705.87,
+                        "externalExecutionId": "",
+                        "externalExecutionUrl": ""
+                    },
+                    "entityUrl": "https://eu-west-1.console.aws.amazon.com/cloudformation/home?/"
+                },
+                {
+                    "actionName": "Approval",
+                    "latestExecution": {
+                        "status": "InProgress",
+                        "token": "615520f9-f72e-4c19-b8d2-79c75c4cb29a"
+                    }
+                },
+                {
+                    "actionName": "ExecuteChangeSet",
+                    "entityUrl": "https://eu-west-1.console.aws.amazon.com/cloudformation/home?/"
+                }
+            ],
+            "latestExecution": {
+                "pipelineExecutionId": "PIPELINE_EXECUTION_ID",
+                "status": "InProgress"
+            }
+        }
+    ],
+    "created": 1566373619.963,
+    "updated": 1566392450.286
+}

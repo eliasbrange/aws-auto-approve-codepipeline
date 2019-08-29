@@ -1,0 +1,7 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: Test Stack 2
+
+Resources:
+  PipelineTestStack2Bucket:
+    Type: AWS::S3::Bucket

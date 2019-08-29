@@ -1,0 +1,22 @@
+{
+  "Records": [
+    {
+      "EventSource": "aws:sns",
+      "EventVersion": "1.0",
+      "EventSubscriptionArn": "arn:aws:sns:eu-west-1:856226105742:PipelineTestTopic:f3646435-8894-4caf-82ed-ea83756076c4",
+      "Sns": {
+        "Type": "Notification",
+        "MessageId": "d4a7332f-a730-5e7e-8a22-66f7fe2a8e5c",
+        "TopicArn": "arn:aws:sns:eu-west-1:856226105742:PipelineTestTopic",
+        "Subject": "APPROVAL NEEDED: AWS CodePipeline PipelineTest for action Approval",
+        "Message": "{\"region\":\"eu-west-1\",\"consoleLink\":\"https://console.aws.amazon.com/codepipeline/home?region=eu-west-1#/view/PipelineTest\",\"approval\":{\"pipelineName\":\"PipelineTest\",\"stageName\":\"Deploy\",\"actionName\":\"Approval\",\"token\":\"615520f9-f72e-4c19-b8d2-79c75c4cb29a\",\"expires\":\"2019-08-29T08:48Z\",\"externalEntityLink\":null,\"approvalReviewLink\":\"https://console.aws.amazon.com/codepipeline/home?region=eu-west-1#/view/PipelineTest/Deploy/Approval/approve/615520f9-f72e-4c19-b8d2-79c75c4cb29a\",\"customData\":null}}",
+        "Timestamp": "2019-08-22T08:48:26.642Z",
+        "SignatureVersion": "1",
+        "Signature": "MxtK0SUI/2BD3dhLwabre15YA967/5VsqoYBqzyo0g4Aw+GiN2CUv4LgZGDgBOXwpcGb2l1kLILuNPXvD35Sf5AogfqlVUhdNcs5BF8uGM28SxOzbbHPWEvqkyMZINMeHm1RmHufD9zwXn4eX+sqAIudWfJbqmaPrcNOpOPw2Xxktd3WK6rq4QePKibMkT1mzX1JaoT6DnZQq372A+8nZH2tYnscVySNSSV04mD+iO67PcwlmcBwrRg5wznfn+CXSAAWZWNPewUUaRvlmBEfAf3l3+CdRs7zrP0UjQDH3bthzbtNHmiX648VQxrEqVu4A4zYKRrY8BOGKzeKvGfvmg==",
+        "SigningCertUrl": "https://sns.eu-west-1.amazonaws.com/SimpleNotificationService-6aad65c2f9911b05cd53efda11f913f9.pem",
+        "UnsubscribeUrl": "https://sns.eu-west-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:eu-west-1:856226105742:PipelineTestTopic:f3646435-8894-4caf-82ed-ea83756076c4",
+        "MessageAttributes": {}
+      }
+    }
+  ]
+}
